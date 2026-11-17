@@ -1,0 +1,108 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="app-frame">
+  <header class="site-header">
+    <a class="brand" routerLink="/" aria-label="RailwayLab home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M7 25 16 6l9 19M11 17h10M9 22h14" stroke="currentColor" stroke-width="2.4" />
+          <circle cx="10" cy="27" r="1.5" fill="currentColor" />
+          <circle cx="22" cy="27" r="1.5" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="brand-type">Railway<span>Lab</span></span>
+    </a>
+
+    <nav class="primary-nav" aria-label="Primary navigation">
+      <a routerLink="/" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }"
+        >Search</a
+      >
+      <a routerLink="/my-bookings" routerLinkActive="active-link">My bookings</a>
+      @if (auth.permissions().has('reports:read')) {
+        <a routerLink="/admin" routerLinkActive="active-link">Admin</a>
+      }
+      @if (auth.permissions().has('auth:read')) {
+        <a routerLink="/admin/auth" routerLinkActive="active-link">Access</a>
+      }
+      <a routerLink="/helpdesk" routerLinkActive="active-link">Helpdesk</a>
+    </nav>
+
+    <div class="header-actions">
+      <button
+        class="theme-button"
+        type="button"
+        (click)="toggleTheme()"
+        [attr.aria-label]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+        [title]="theme() === 'light' ? 'Switch to dark theme' : 'Switch to light theme'"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="7" />
+          <path d="M12 5a7 7 0 0 1 0 14Z" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+
+      @if (auth.isLoggedIn()) {
+        <details class="account-menu">
+          <summary>
+            <span class="account-avatar" aria-hidden="true">{{
+              auth.user()?.name?.slice(0, 1) ?? 'R'
+            }}</span>
+            <span class="account-copy">
+              <strong>{{ auth.user()?.username }}</strong>
+              <small>{{ auth.roles().join(' · ') }}</small>
+            </span>
+            <svg
+              class="account-chevron"
+              viewBox="0 0 16 16"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="m4 6 4 4 4-4" />
+            </svg>
+          </summary>
+          <div class="account-popover">
+            <p>{{ auth.user()?.name }}</p>
+            <button type="button" (click)="auth.logout()">Sign out</button>
+          </div>
+        </details>
+      } @else {
+        <button class="sign-in" type="button" (click)="auth.login(router.url)">Sign in</button>
+      }
+    </div>
+  </header>
+
+  @if (auth.authError()) {
+    <div class="auth-notice" role="alert">
+      <span>{{ auth.authError() }}</span>
+      <button type="button" (click)="auth.login(router.url)">Try sign in</button>
+    </div>
+  }
+
+  <main id="main-content" tabindex="-1">
+    <router-outlet />
+  </main>
+
+  <footer class="site-footer">
+    <span>RailwayLab <span class="footer-divider">/</span> Ticketing systems lab</span>
+    <span>Demo environment · Synthetic data only</span>
+  </footer>
+
+  @if (toast.message()) {
+    <aside class="toast" role="alert">
+      <span class="toast-mark" aria-hidden="true">!</span>
+      <p>{{ toast.message() }}</p>
+      <button type="button" aria-label="Dismiss notification" (click)="toast.dismiss()">×</button>
+    </aside>
+  }
+</div>

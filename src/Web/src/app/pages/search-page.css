@@ -1,0 +1,167 @@
+.search-page {
+  max-width: 74rem;
+  margin: auto;
+  padding: 4rem 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.95fr);
+  gap: 3rem 4rem;
+  align-items: center;
+}
+
+.page-intro h1 {
+  margin: 0 0 1.5rem;
+  font-family: var(--font-display);
+  font-size: 3.75rem;
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.intro-copy {
+  max-width: 38ch;
+  color: var(--color-muted);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.browse-note {
+  max-width: 38ch;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.search-panel {
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.85rem;
+  background: var(--color-surface);
+}
+
+.search-panel__heading,
+.results-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+form {
+  display: grid;
+  gap: 1.25rem;
+}
+.station-fields,
+.trip-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+.search-results {
+  grid-column: 1 / -1;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+}
+.results-heading {
+  margin-bottom: 0.5rem;
+}
+.results-heading p,
+.result-count {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+.trip-list {
+  margin-top: 1.5rem;
+}
+.train-result {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--color-border);
+}
+.train-name h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+.train-name p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+.train-times {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.train-times time {
+  font-weight: 650;
+}
+.train-times small {
+  flex-basis: 100%;
+  color: var(--color-muted);
+}
+.train-fare {
+  display: grid;
+  gap: 0.25rem;
+}
+.train-fare strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+.train-fare span {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 1000px) {
+  .search-page {
+    grid-template-columns: 1fr;
+    max-width: 46rem;
+    gap: 2rem;
+    padding-top: 2.5rem;
+  }
+  .page-intro h1 {
+    font-size: 3rem;
+  }
+  .train-result {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .page-intro h1 {
+    font-size: 2.5rem;
+  }
+  .search-panel {
+    padding: 1.25rem;
+  }
+  .search-panel__heading,
+  .results-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  .station-fields {
+    grid-template-columns: 1fr;
+  }
+  .train-result {
+    gap: 1.25rem;
+  }
+  .train-result .secondary-button {
+    align-self: end;
+  }
+}

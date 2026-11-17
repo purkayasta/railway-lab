@@ -1,0 +1,144 @@
+# Grows with the roadmap: each task adds the services it builds.
+name: railway-lab
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?set in .env}
+      MSSQL_MEMORY_LIMIT_MB: ${MSSQL_MEMORY_LIMIT_MB:-2048}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" -b -o /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    platform: linux/amd64
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: "no"
+    environment:
+      SQLCMDPASSWORD: ${MSSQL_SA_PASSWORD}
+      SCHEDULE_DB_PASSWORD: ${SCHEDULE_DB_PASSWORD:?set in .env}
+      RESERVATION_DB_PASSWORD: ${RESERVATION_DB_PASSWORD:?set in .env}
+      PAYMENT_DB_PASSWORD: ${PAYMENT_DB_PASSWORD:?set in .env}
+      ANALYTICS_DB_PASSWORD: ${ANALYTICS_DB_PASSWORD:?set in .env}
+      HELPDESK_DB_PASSWORD: ${HELPDESK_DB_PASSWORD:?set in .env}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD:?set in .env}
+    volumes:
+      - ./deploy/sql/init.sql:/init.sql:ro
+    entrypoint: ["/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "sqlserver", "-U", "sa", "-b", "-i", "/init.sql"]
+
+  auth:
+    image: railway-lab-auth:latest
+    build:
+      context: .
+      dockerfile: src/Services/Auth/Dockerfile
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      # Browser-facing issuer; every token carries it as `iss`.
+      Auth__Issuer: http://localhost:8180/
+      Auth__RequireHttpsMetadata: "false"
+      Auth__KeyDirectory: /keys
+      Auth__WebOrigin: http://localhost:4200
+      Auth__SeedUserPassword: ${SEED_USER_PASSWORD:?set in .env}
+      Auth__InternalServicesClientSecret: ${INTERNAL_SERVICES_CLIENT_SECRET:?set in .env}
+      ConnectionStrings__Default: Server=sqlserver;Database=RailwayLab;User Id=auth_svc;Password=${AUTH_DB_PASSWORD:?set in .env};TrustServerCertificate=True
+    ports:
+      - "8180:8080"
+    volumes:
+      - auth-keys:/keys
+    healthcheck:
+      # The alpine runtime image has no curl; busybox wget is available.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 15s
+
+  schedule:
+    image: railway-lab-schedule:latest
+    build:
+      context: .
+      dockerfile: src/Services/Schedule/Dockerfile
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      Auth__Authority: http://auth:8080
+      Auth__Issuer: http://localhost:8180/
+      Auth__RequireHttpsMetadata: "false"
+      ConnectionStrings__Default: Server=sqlserver;Database=RailwayLab;User Id=schedule_svc;Password=${SCHEDULE_DB_PASSWORD:?set in .env};TrustServerCertificate=True
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  reservation:
+    image: railway-lab-reservation:latest
+    build:
+      context: .
+      dockerfile: src/Services/Reservation/Dockerfile
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+      schedule:
+        condition: service_healthy
+    environment:
+      Auth__Authority: http://auth:8080
+      Auth__Issuer: http://localhost:8180/
+      Auth__RequireHttpsMetadata: "false"
+      ConnectionStrings__Default: Server=sqlserver;Database=RailwayLab;User Id=reservation_svc;Password=${RESERVATION_DB_PASSWORD:?set in .env};TrustServerCertificate=True
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+
+  gateway:
+    image: railway-lab-gateway:latest
+    build:
+      context: .
+      dockerfile: src/Gateway/Dockerfile
+    depends_on:
+      auth:
+        condition: service_healthy
+      schedule:
+        condition: service_healthy
+      reservation:
+        condition: service_healthy
+    environment:
+      Auth__Authority: http://auth:8080
+      Auth__Issuer: http://localhost:8180/
+      Auth__RequireHttpsMetadata: "false"
+    ports:
+      - "8080:8080"
+
+  web:
+    image: railway-lab-web:latest
+    build:
+      context: .
+      dockerfile: src/Web/Dockerfile
+    depends_on:
+      - gateway
+    ports:
+      - "4200:8080"
+
+volumes:
+  sqlserver-data:
+  auth-keys:

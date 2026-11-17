@@ -1,0 +1,25 @@
+bin/
+obj/
+*.user
+.vs/
+.idea/
+.vscode/
+.DS_Store
+TestResults/
+coverage/
+
+# secrets and local config
+.env
+.env.*
+!.env.example
+*.local.json
+.local-dev/
+
+# Angular
+node_modules/
+dist/
+.angular/
+
+# Playwright
+playwright-report/
+test-results/

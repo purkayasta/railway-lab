@@ -1,0 +1,27 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f2ec;
+  --card: #fffefa;
+  --text: #1d2c2d;
+  --muted: #626e6d;
+  --accent: #a34a32;
+  --on-accent: #ffffff;
+  --danger: #9c3e32;
+  --border: #dedfd8;
+}
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; --bg: #172121; --card: #202c2c; --text: #eef0e9; --muted: #acb7b2; --accent: #dc8b6b; --on-accent: #172121; --danger: #f0a195; --border: #3a4947; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, sans-serif; }
+main { width: min(28rem, calc(100vw - 2rem)); margin-block: 2rem; background: var(--card); border: 1px solid var(--border); border-radius: 0.85rem; padding: 2rem; }
+.brand { margin: 0 0 1.5rem; color: var(--muted); font-size: 0.9rem; }
+h1 { margin: 0 0 1rem; font: 500 2.5rem/1.15 Georgia, serif; letter-spacing: -0.025em; }
+label { display: block; margin: 1.25rem 0 0.4rem; font-size: 0.875rem; font-weight: 650; }
+input { width: 100%; min-height: 3rem; padding: 0.7rem 0.8rem; border: 1px solid var(--border); border-radius: 0.4rem; background: transparent; color: inherit; font: inherit; caret-color: var(--accent); }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+button { width: 100%; min-height: 3rem; margin-top: 1.5rem; padding: 0.75rem; border: 0; border-radius: 0.4rem; background: var(--accent); color: var(--on-accent); font: inherit; font-weight: 650; cursor: pointer; }
+button:hover { filter: brightness(0.92); }
+a { color: var(--accent); text-underline-offset: 0.2em; }
+.error { margin: 0 0 1rem; padding: 0.75rem; border: 1px solid var(--danger); border-radius: 0.4rem; color: var(--danger); }
+::selection { background: var(--accent); color: var(--on-accent); }

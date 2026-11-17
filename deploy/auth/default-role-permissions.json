@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "permissions": [
+    { "name": "seats:hold", "service": "reservation", "description": "hold, extend, release own seats" },
+    { "name": "bookings:read-own", "service": "reservation", "description": "read own bookings and tickets" },
+    { "name": "bookings:read-any", "service": "reservation", "description": "read any booking (support, agents)" },
+    { "name": "bookings:create-on-behalf", "service": "reservation", "description": "hold and book for a walk-in passenger" },
+    { "name": "policy:read", "service": "reservation", "description": "read policy settings" },
+    { "name": "policy:write", "service": "reservation", "description": "change policy settings" },
+    { "name": "payments:pay", "service": "payment", "description": "pay for own booking" },
+    { "name": "payments:ops-read", "service": "payment", "description": "orphaned and unknown payment queues" },
+    { "name": "reports:read", "service": "analytics", "description": "dashboard and reports" },
+    { "name": "helpdesk:chat", "service": "helpdesk", "description": "use the assistant" },
+    { "name": "auth:read", "service": "auth", "description": "view roles, mapping, users, audit" },
+    { "name": "auth:manage", "service": "auth", "description": "change mapping, assign roles" },
+    { "name": "sessions:revoke-own", "service": "auth", "description": "sign out of all own devices (revoke own refresh tokens)" }
+  ],
+  "roles": {
+    "passenger": ["seats:hold", "bookings:read-own", "payments:pay", "helpdesk:chat", "sessions:revoke-own"],
+    "station-agent": [
+      "seats:hold", "bookings:read-own", "payments:pay", "helpdesk:chat",
+      "bookings:create-on-behalf", "bookings:read-any", "sessions:revoke-own"
+    ],
+    "operations": ["reports:read", "payments:ops-read", "bookings:read-any", "policy:read", "sessions:revoke-own"],
+    "admin": [
+      "seats:hold", "bookings:read-own", "bookings:read-any", "bookings:create-on-behalf",
+      "policy:read", "policy:write", "payments:pay", "payments:ops-read",
+      "reports:read", "helpdesk:chat", "auth:read", "auth:manage", "sessions:revoke-own"
+    ]
+  }
+}
